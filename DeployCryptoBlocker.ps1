@@ -284,13 +284,26 @@ $drivesContainingShares | ForEach-Object {
 }
 
 # Add Folder Exceptions from ExcludeList.txt
-If (Test-Path .\ExcludePaths.txt) {
-    Write-Host "`n####"
-    Write-Host "Processing Folder Exclusions.."
+If (Test-Path .\ExcludePaths.txt)
+{
     Get-Content .\ExcludePaths.txt | ForEach-Object {
         If (Test-Path $_) {
-            # Build the argument list with all required fileGroups
+            Write-Host "`n####"
+            Write-Host "Creating Folder Exclusions.."
+			# Build the argument list with all required fileGroups
             $ExclusionArgs = 'Exception', 'Add', "/Path:$_"
+            ForEach ($group in $fileGroups) {
+                $ExclusionArgs += "/Add-Filegroup:$($group.fileGroupName)"
+            }
+            &filescrn.exe $ExclusionArgs
+        }
+    }
+    Get-Content .\ExcludePaths.txt | ForEach-Object {
+        If (Test-Path $_) {
+            Write-Host "`n####"
+            Write-Host "Updating Existing Folder Exclusions.."
+			# Build the argument list with all required fileGroups
+            $ExclusionArgs = 'Exception', 'Modify', "/Path:$_"
             ForEach ($group in $fileGroups) {
                 $ExclusionArgs += "/Add-Filegroup:$($group.fileGroupName)"
             }
